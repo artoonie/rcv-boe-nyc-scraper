@@ -106,8 +106,6 @@ def downloadAndConvertToUniversalTabulatorFormat(contest):
         print(f"Looking at {url}")
         req = download(url)
 
-        if req['status_code'] == 404:
-            break
         if req['status_code'] != 200:
             raise RuntimeError(f"Unexpected error code on round {round_i}: {req['status_code']}")
 
@@ -145,6 +143,11 @@ def downloadAndConvertToUniversalTabulatorFormat(contest):
         round_i += 1
         if round_i == 30:
             raise RuntimeError("No way we have 30 rounds.")
+
+        if 'ROUND ' + str(round_i) not in req['content']:
+            # note: can't check for 404 because old results are still up, and new rounds may be shorter
+            break
+
     return universalTabulatorDataFormat
 
 ###############################################################################################
