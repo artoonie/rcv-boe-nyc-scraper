@@ -17,6 +17,7 @@ import requests
 
 from bs4 import BeautifulSoup
 from rcvformats.schemas import universaltabulator
+from rcvformats.conversions.ut_without_transfers import UTWithoutTransfersConverter
 
 ###############################################################################################
 # Caching functions: if we run this code multiple times, we don't want to be downloading from #
@@ -158,13 +159,25 @@ def downloadAndConvertToUniversalTabulatorFormat(contest):
 ###############################################################################################
 
 def parseAndValidateContest(contest):
+    # Download
     ut_format = downloadAndConvertToUniversalTabulatorFormat(contest)
     out_filename = f'outdir/{contest}.json'
+
+    # Save
     with open(out_filename, 'w') as f:
         json.dump(ut_format, f)
+
+    # Validate
     schema = universaltabulator.SchemaV0()
     if not schema.validate(out_filename):
         print("Didn't generate a correct format: ", schema.last_error())
+
+    # Add tallyresults for sankey data
+    converter = UTWithoutTransfersConverter(allow_guessing=False)
+    with_transfers = converter.convert_to_ut(out_filename)
+    with open(out_filename, 'w') as file_obj:
+        json.dump(with_transfers, file_obj)
+
     print(f"Completed contest, saved to {out_filename}")
 
 ###############################################################################################
