@@ -62,17 +62,19 @@ def patch_all_files_to_rcvis():
     for filepath, uploadedId in data.items():
         filename = filepath[len('outdir/'):-len('.json')]
 
-        #with open(filepath, 'rb') as jsonFile:
-        #    data = json.loads(jsonFile.read())
-        #source = f'https://web.enrboenyc.us/rcv/{filename}_1.html'
-        #url = f'https://rcvis.com/api/bp/{uploadedId}/'
-        #response = requests.patch(url, headers=get_header(), data={'dataSourceURL': source})
-        #assert response.status_code == 200
-        #print("Done patching", filename, uploadedId)
+        # Adds data source
+        # with open(filepath, 'rb') as jsonFile:
+        #     data = json.loads(jsonFile.read())
+        # source = f'https://web.enrboenyc.us/rcv/{filename}_1.html'
+        # url = f'https://rcvis.com/api/bp/{uploadedId}/'
+        # response = requests.patch(url, headers=get_header(), data={'dataSourceURL': source})
 
+        # Updates json
         url = f'https://rcvis.com/api/visualizations/{uploadedId}/'
         with open(filepath, 'rb') as jsonFile:
             response = requests.patch(url, headers=get_header(), files={'jsonFile': jsonFile})
+        print(response.json())
+
         assert response.status_code == 200
         print("Done patching", filename, uploadedId)
 # Uncomment to upload all files to RCVis
